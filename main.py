@@ -1,9 +1,21 @@
 from fastapi import FastAPI
 
-app = FastAPI()
+from routers.income_router import router
+
+
+app = FastAPI(
+    title="Income Management API",
+    description="API for managing income, expenses and cash in hand",
+    version="1.0.0"
+)
+
+
+app.include_router(router)
+
 
 @app.get("/")
 def home():
+
     return {
-        "message" : "Income Management API is running"
+        "message": "Income Management API is running"
     }
