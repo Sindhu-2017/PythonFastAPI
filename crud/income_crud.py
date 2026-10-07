@@ -1,216 +1,216 @@
-from decimal import Decimal
 from database import get_connection
+from models import IncomeCreate, IncomeUpdate
 
-def calculate_income(amount, tax_percentage, expense_amount):
-    tax_amount = (amount * tax_percentage) / Decimal("100")
+
+def get_all_income():
+    connection = get_connection()
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute("""
+                SELECT
+                    income_id,
+                    income_date,
+                    source,
+                    income_type,
+                    amount,
+                    tax_percentage,
+                    tax_amount,
+                    expense_amount,
+                    net_income,
+                    cash_in_hand,
+                    description
+                FROM income
+                ORDER BY income_id;
+            """)
+            rows = cursor.fetchall()
+            incomes = []
+            for row in rows:
+                incomes.append({
+                    "income_id": row[0],
+                    "income_date": row[1],
+                    "source": row[2],
+                    "income_type": row[3],
+                    "amount": float(row[4]),
+                    "tax_percentage": float(row[5]),
+                    "tax_amount": float(row[6]),
+                    "expense_amount": float(row[7]),
+                    "net_income": float(row[8]),
+                    "cash_in_hand": float(row[9]),
+                    "description": row[10]
+                })
+            return incomes
+    finally:
+        connection.close()
+
+
+def get_income(income_id: int):
+    connection = get_connection()
+
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute("""
+                SELECT
+                    income_id,
+                    income_date,
+                    source,
+                    income_type,
+                    amount,
+                    tax_percentage,
+                    tax_amount,
+                    expense_amount,
+                    net_income,
+                    cash_in_hand,
+                    description
+                FROM income
+                WHERE income_id = %s;
+            """, (income_id,))
+
+            row = cursor.fetchone()
+            if row is None:
+                return None
+            return {
+                "income_id": row[0],
+                "income_date": row[1],
+                "source": row[2],
+                "income_type": row[3],
+                "amount": float(row[4]),
+                "tax_percentage": float(row[5]),
+                "tax_amount": float(row[6]),
+                "expense_amount": float(row[7]),
+                "net_income": float(row[8]),
+                "cash_in_hand": float(row[9]),
+                "description": row[10]
+            }
+    finally:
+        connection.close()
+
+
+def calculate_income(amount,tax_percentage,expense_amount):
+    tax_amount = ( amount * tax_percentage) / 100
     net_income = amount - tax_amount
     cash_in_hand = net_income - expense_amount
     return (tax_amount,net_income,cash_in_hand)
 
 
-def create_income(income):
-    tax_amount, net_income, cash_in_hand = calculate_income(income.amount,income.tax_percentage,income.expense_amount)
-
-    query = """
-        INSERT INTO income (income_date,source,income_type,amount,tax_percentage,tax_amount,expense_amount,net_income,cash_in_hand,description)
-        VALUES (%s, %s, %s, %s, %s,%s, %s, %s, %s, %s)
-        RETURNING
-            income_id,
-            income_date,
-            source,
-            income_type,
-            amount,
-            tax_percentage,
-            tax_amount,
-            expense_amount,
-            net_income,
-            cash_in_hand,
-            description
-    """
-
-    with get_connection() as connection:
+def create_income(income: IncomeCreate):
+    connection = get_connection()
+    try:
+        tax_amount, net_income, cash_in_hand = calculate_income(income.amount,income.tax_percentage,income.expense_amount)
         with connection.cursor() as cursor:
-            cursor.execute(
-                query,
+            cursor.execute("""
+                INSERT INTO income
                 (
-                    income.income_date,
-                    income.source,
-                    income.income_type,
-                    income.amount,
-                    income.tax_percentage,
+                    income_date,
+                    source,
+                    income_type,
+                    amount,
+                    tax_percentage,
                     tax_amount,
-                    income.expense_amount,
+                    expense_amount,
                     net_income,
                     cash_in_hand,
-                    income.description
+                    description
                 )
-            )
-
-            result = cursor.fetchone()
-
-            connection.commit()
-
-            return result
-
-
-def get_all_income():
-
-    query = """
-        SELECT
-            income_id,
-            income_date,
-            source,
-            income_type,
-            amount,
-            tax_percentage,
-            tax_amount,
-            expense_amount,
-            net_income,
-            cash_in_hand,
-            description
-        FROM income
-        ORDER BY income_id
-    """
-
-    with get_connection() as connection:
-
-        with connection.cursor() as cursor:
-
-            cursor.execute(query)
-
-            return cursor.fetchall()
-
-
-def get_income_by_id(income_id):
-
-    query = """
-        SELECT
-            income_id,
-            income_date,
-            source,
-            income_type,
-            amount,
-            tax_percentage,
-            tax_amount,
-            expense_amount,
-            net_income,
-            cash_in_hand,
-            description
-        FROM income
-        WHERE income_id = %s
-    """
-
-    with get_connection() as connection:
-
-        with connection.cursor() as cursor:
-
-            cursor.execute(query, (income_id,))
-
-            return cursor.fetchone()
-
-
-def update_income(income_id, income):
-
-    tax_amount, net_income, cash_in_hand = calculate_income(
-        income.amount,
-        income.tax_percentage,
-        income.expense_amount
-    )
-
-    query = """
-        UPDATE income
-        SET
-            income_date = %s,
-            source = %s,
-            income_type = %s,
-            amount = %s,
-            tax_percentage = %s,
-            tax_amount = %s,
-            expense_amount = %s,
-            net_income = %s,
-            cash_in_hand = %s,
-            description = %s
-        WHERE income_id = %s
-
-        RETURNING
-            income_id,
-            income_date,
-            source,
-            income_type,
-            amount,
-            tax_percentage,
-            tax_amount,
-            expense_amount,
-            net_income,
-            cash_in_hand,
-            description
-    """
-
-    with get_connection() as connection:
-
-        with connection.cursor() as cursor:
-
-            cursor.execute(
-                query,
+                VALUES
                 (
-                    income.income_date,
-                    income.source,
-                    income.income_type,
-                    income.amount,
-                    income.tax_percentage,
-                    tax_amount,
-                    income.expense_amount,
-                    net_income,
-                    cash_in_hand,
-                    income.description,
-                    income_id
+                    %s,%s, %s,%s,%s,%s,%s,%s,%s,%s
                 )
-            )
-
-            result = cursor.fetchone()
-
+                RETURNING income_id;
+            """, (
+                income.income_date,
+                income.source,
+                income.income_type,
+                income.amount,
+                income.tax_percentage,
+                tax_amount,
+                income.expense_amount,
+                net_income,
+                cash_in_hand,
+                income.description
+            ))
+            income_id = cursor.fetchone()[0]
             connection.commit()
+            return income_id
 
-            return result
+    except Exception:
+        connection.rollback()
+        raise
+
+    finally:
+        connection.close()
 
 
-def delete_income(income_id):
+def update_income(income_id: int,income: IncomeUpdate):
+    connection = get_connection()
+    try:
+        tax_amount, net_income, cash_in_hand = calculate_income(income.amount,income.tax_percentage,income.expense_amount)
+        with connection.cursor() as cursor:
+            cursor.execute("""
+                UPDATE income
+                SET
+                    income_date = %s,
+                    source = %s,
+                    income_type = %s,
+                    amount = %s,
+                    tax_percentage = %s,
+                    tax_amount = %s,
+                    expense_amount = %s,
+                    net_income = %s,
+                    cash_in_hand = %s,
+                    description = %s
+                WHERE income_id = %s
+                RETURNING income_id;
+            """, (
+                income.income_date,
+                income.source,
+                income.income_type,
+                income.amount,
+                income.tax_percentage,
+                tax_amount,
+                income.expense_amount,
+                net_income,
+                cash_in_hand,
+                income.description,
+                income_id
+            ))
 
-    query = """
-        DELETE FROM income
-        WHERE income_id = %s
-        RETURNING income_id
-    """
+            row = cursor.fetchone()
+            if row is None:
+                connection.rollback()
+                return None
+            connection.commit()
+            return row[0]
 
-    with get_connection() as connection:
+    except Exception:
+        connection.rollback()
+        raise
 
+    finally:
+        connection.close()
+
+
+def delete_income(income_id: int):
+    connection = get_connection()
+    try:
         with connection.cursor() as cursor:
 
-            cursor.execute(query, (income_id,))
+            cursor.execute("""
+                DELETE FROM income WHERE income_id = %s
+                RETURNING income_id;
+            """, (income_id,))
 
-            result = cursor.fetchone()
+            row = cursor.fetchone()
+
+            if row is None:
+                connection.rollback()
+                return None
 
             connection.commit()
+            return row[0]
 
-            return result
+    except Exception:
+        connection.rollback()
+        raise
 
-
-def get_income_summary():
-
-    query = """
-        SELECT
-            COALESCE(SUM(amount), 0),
-            COALESCE(SUM(tax_amount), 0),
-            COALESCE(SUM(expense_amount), 0),
-            COALESCE(SUM(net_income), 0),
-            COALESCE(SUM(cash_in_hand), 0)
-        FROM income
-    """
-
-    with get_connection() as connection:
-
-        with connection.cursor() as cursor:
-
-            cursor.execute(query)
-
-            return cursor.fetchone()
+    finally:
+        connection.close()
