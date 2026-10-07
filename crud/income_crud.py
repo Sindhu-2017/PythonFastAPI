@@ -7,9 +7,17 @@ def get_all_income():
         with connection.cursor() as cursor:
             cursor.execute("""
                 SELECT 
-                    income_id , income_date , source , income_type , amount,
-                    tax_percentage ,tax_amount , expense_amount , net_income ,
-                    cash_in_hand , description
+                    income_id , 
+                    income_date , 
+                    source , 
+                    income_type , 
+                    amount,
+                    tax_percentage ,
+                    tax_amount , 
+                    expense_amount , 
+                    net_income ,
+                    cash_in_hand , 
+                    description
                 FROM income
                 ORDER BY income_id
             """)
@@ -41,9 +49,17 @@ def get_income(income_id : int):
         with connection.cursor() as cursor:
             cursor.execute("""
                 SELECT 
-                    income_id , income_date , source , income_type , amount,
-                    tax_percentage ,tax_amount , expense_amount , net_income ,
-                    cash_in_hand , description
+                    income_id , 
+                    income_date , 
+                    source , 
+                    income_type , 
+                    amount,
+                    tax_percentage ,
+                    tax_amount , 
+                    expense_amount , 
+                    net_income ,
+                    cash_in_hand , 
+                    description
                 FROM income
                 WHERE income_id = %s;
             """,(income_id,))
@@ -88,12 +104,29 @@ def create_income (income :IncomeCreate):
             cursor.execute("""
                 INSERT INTO income 
                 (
-                    income_date , source , income_type , amount , tax_percentage ,
-                    tax_amount ,expense_amount,net_income , cash_in_hand , description
+                    income_date , 
+                    source , 
+                    income_type , 
+                    amount , 
+                    tax_percentage ,
+                    tax_amount ,
+                    expense_amount,
+                    net_income , 
+                    cash_in_hand , 
+                    description
                 )
                 VALUES 
                 (
-                    %s,%s,%s,%s,%s,%s,%s,%s,%s,%s
+                    %s,
+                    %s,
+                    %s,
+                    %s,
+                    %s,
+                    %s,
+                    %s,
+                    %s,
+                    %s,
+                    %s
                 )
                 RETURNING income_id;
             """,(

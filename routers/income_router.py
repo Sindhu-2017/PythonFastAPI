@@ -1,11 +1,16 @@
 from fastapi import APIRouter,HTTPException
 from models import IncomeCreate,IncomeUpdate
 from crud.income_crud import (
-    get_all_income,get_income,create_income,update_income,delete_income
+    get_all_income,
+    get_income,
+    create_income,
+    update_income,
+    delete_income
 )
 
 router = APIRouter(
-    prefix="/api/income",tags=["Income Deatils"]
+    prefix="/api/income",
+    tags=["Income Deatils"]
 )
 
 # get all
@@ -20,7 +25,10 @@ def get_income_by_id(income_id:int):
     income = get_income(income_id)
 
     if income is None:
-        raise HTTPException(status_code=404,detail="Income not found")
+        raise HTTPException(
+            status_code=404,
+            detail="Income id not found"
+        )
 
     return income
 
@@ -31,12 +39,15 @@ def create_new_income(income :IncomeCreate):
     try:
         income_id = create_income(income)
         return {
-            "message" : "Income created successfully",
+            "message" : "Income data added successfully",
             "income_id":income_id
         }
 
     except Exception as e:
-        raise HTTPException(status_code=500,detail=str(e))
+        raise HTTPException(
+            status_code=500,
+            detail=str(e)
+        )
 
 
 # update
@@ -44,7 +55,10 @@ def create_new_income(income :IncomeCreate):
 def update_existing_income(income_id:int , income :IncomeUpdate):
     updated_id = update_income (income_id , income)
     if updated_id is None :
-        raise HTTPException (status_code=404 , detail= "Income Not Found")
+        raise HTTPException (
+            status_code=404 , 
+            detail= "Income id not found"
+        )
 
     return {
         "message" : "Income updated successfully",
@@ -56,10 +70,13 @@ def update_existing_income(income_id:int , income :IncomeUpdate):
 def delete_existing_income(income_id:int):
     deleted_id = delete_income(income_id)
     if deleted_id is None:
-        raise HTTPException(status_code=404,detail="Income not found")
+        raise HTTPException(
+            status_code=404,
+            detail="Income id not found"
+        )
 
 
     return {
-        "message" :"Income deleted successfully",
+        "message" :"Income data deleted successfully",
         "income_id":deleted_id
     }
