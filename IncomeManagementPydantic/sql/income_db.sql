@@ -14,7 +14,11 @@ CREATE TABLE income (
 
 INSERT INTO income
 (income_date, source, income_type, amount, tax_percentage, tax_amount, expense_amount, net_income, cash_in_hand, description)
-VALUES ('2026-10-05','Part Time Job','Hourly',22000,2,440,4000,21560,17560,'Part time work'),
+VALUES ('2026-10-04','Investment','Dividend',30000,5,1500,3000,28500,25500,'Dividend income'),
+('2026-10-05','Part Time Job','Hourly',22000,2,440,4000,21560,17560,'Part time work'),
+('2026-10-06','Consulting','IT Consulting',90000,12,10800,25000,79200,54200,'IT consulting project'),
+('2026-10-02','Freelance','Design',35000,8,2800,5000,32200,27200,'Logo design project')
+
 
 select * from income
 

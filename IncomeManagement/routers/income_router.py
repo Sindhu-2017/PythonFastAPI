@@ -1,6 +1,6 @@
 from fastapi import APIRouter,HTTPException
-from models import IncomeCreate,IncomeUpdate
-from crud.income_crud import (
+from PythonFastAPI.IncomeManagement.models import IncomeCreate,IncomeUpdate
+from PythonFastAPI.IncomeManagement.crud.income_crud import (
     get_all_income,
     get_income,
     create_income,

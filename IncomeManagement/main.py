@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from routers.income_router import router
+from PythonFastAPI.IncomeManagement.routers.income_router import router
 
 app = FastAPI(
     title="Income Management API",
