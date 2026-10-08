@@ -58,11 +58,33 @@ async def create_income(income:IncomeCreate):
         income.expense_amount
     )
 
-    income_data = income.model_dump()
+    income_model = IncomeModel(
+        income_id =0,
+        income_date=income.income_date,
+        source=income.source,
+        income_type=income.income_type,
+        amount=income.amount,
+        tax_percentage=income.tax_percentage,
+        tax_amount=tax_amount,
+        expense_amount=income.expense_amount,
+        net_income=net_income,
+        cash_in_hand=cash_in_hand,
+        description=income.description
+    )
 
-    income_data["tax_amount"] = tax_amount
-    income_data["net_income"] = net_income
-    income_data["cash_in_hand"] = cash_in_hand
+    income_data = {
+        "income_date": income_model.income_date,
+        "source": income_model.source,
+        "income_type": income_model.income_type,
+        "amount": income_model.amount,
+        "tax_percentage": income_model.tax_percentage,
+        "tax_amount": income_model.tax_amount,
+        "expense_amount": income_model.expense_amount,
+        "net_income": income_model.net_income,
+        "cash_in_hand": income_model.cash_in_hand,
+        "description": income_model.description
+    }
+
 
     row = await insert_income(income_data)
 
