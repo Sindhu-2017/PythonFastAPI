@@ -52,51 +52,23 @@ class IncomeResponse(BaseModel):
         from_attributes=True
     )
 
-    id: int
+    income_id: int
     income_date: date
     source: str
     income_type: str
-    amount: float
-    tax_percentage: float
-    tax_amount: float
-    expense_amount: float
-    net_income: float
-    cash_in_hand: float
+    amount: Decimal
+    tax_percentage: Decimal
+    tax_amount: Decimal
+    expense_amount: Decimal
+    net_income: Decimal
+    cash_in_hand: Decimal
     description: str | None
 
 class IncomePatch(BaseModel):
-
     income_date: date | None = None
-
-    source: str | None = Field(
-        default=None,
-        min_length=2,
-        max_length=100
-    )
-
-    income_type: str | None = Field(
-        default=None,
-        min_length=2,
-        max_length=100
-    )
-
-    amount: Decimal | None = Field(
-        default=None,
-        gt=0
-    )
-
-    tax_percentage: Decimal | None = Field(
-        default=None,
-        ge=0,
-        le=100
-    )
-
-    expense_amount: Decimal | None = Field(
-        default=None,
-        ge=0
-    )
-
-    description: str | None = Field(
-        default=None,
-        max_length=255
-    )
+    source: str | None = Field(default=None,min_length=2,max_length=100)
+    income_type: str | None = Field(default=None,min_length=2,max_length=100)
+    amount: Decimal | None = Field(default=None,gt=0)
+    tax_percentage: Decimal | None = Field(default=None,ge=0,le=100)
+    expense_amount: Decimal | None = Field(default=None,ge=0)
+    description: str | None = Field(default=None,max_length=255)

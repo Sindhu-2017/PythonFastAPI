@@ -30,7 +30,7 @@ def calculate_income(amount, tax_percentage, expense_amount):
     expense_amount = float(expense_amount)
 
     if expense_amount > amount :
-            raise InvalidExpenseAmountError(amount,expense_amount)
+            raise InvalidExpenseAmountError(expense_amount,amount)
 
     tax_amount = (amount * tax_percentage) / 100
     net_income = amount - tax_amount
@@ -140,10 +140,9 @@ async def delete_existing_income(income_id:int):
     }
 
 
-async def patch_existing_income(
-    income_id: int,
-    income: IncomePatch
-):
+# PATCH
+async def patch_existing_income(income_id: int,income: IncomePatch):
+
     existing = await get_income_by_id(income_id)
 
     if existing is None:
@@ -152,7 +151,9 @@ async def patch_existing_income(
     data = income.model_dump(exclude_unset=True)
 
     if not data:
-        return existing
+        raise ValueError(
+            "At least one field must be provided for PATCH"
+        )
 
     current = {
         "income_date": existing[1],
@@ -166,6 +167,12 @@ async def patch_existing_income(
 
     current.update(data)
 
+    if (current["expense_amount"] > 0 and not current["description"]):
+
+        raise ValueError(
+            "Description is required when expense amount is greater than 0"
+        )
+
     tax_amount, net_income, cash_in_hand = calculate_income(
         current["amount"],
         current["tax_percentage"],
@@ -176,4 +183,9 @@ async def patch_existing_income(
     current["net_income"] = net_income
     current["cash_in_hand"] = cash_in_hand
 
-    return await patch_income(income_id, current)
+    row = await patch_income(income_id,current)
+
+    return {
+        "message": "Income data partially updated successfully",
+        "income_id": row[0]
+    }

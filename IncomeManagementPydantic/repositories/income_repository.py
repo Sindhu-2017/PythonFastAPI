@@ -112,7 +112,7 @@ async def insert_income (income_data : dict):
         await connection.rollback()
         raise
     finally:
-        connection.close()
+        await connection.close()
 
 
 # update income
@@ -196,7 +196,6 @@ async def patch_income(income_id: int, data: dict):
 
     try:
         async with connection.cursor() as cursor:
-
             await cursor.execute("""
                 UPDATE income
                 SET income_date = %s,
@@ -232,7 +231,6 @@ async def patch_income(income_id: int, data: dict):
                 return None
 
             await connection.commit()
-
             return row
 
     except Exception:

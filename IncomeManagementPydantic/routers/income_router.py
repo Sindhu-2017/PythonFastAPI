@@ -89,6 +89,32 @@ async def delete(income_id:int = Path(...,gt=0)):
         )
     
     
+# PATCH
 @router.patch("/{income_id}")
-async def patch_income(income_id: int, income: IncomePatch):
-    return await patch_existing_income(income_id, income)
+async def patch_income(
+    income_id: int = Path(
+        ...,
+        gt=0
+    ),
+    income: IncomePatch = None
+):
+    try:
+        return await patch_existing_income(income_id,income)
+    
+    except IncomeNotFoundError as e:
+        raise HTTPException(
+            status_code=404,
+            detail=str(e)
+        )
+
+    except InvalidExpenseAmountError as e:
+        raise HTTPException(
+            status_code=400,
+            detail=str(e)
+        )
+
+    except ValueError as e:
+        raise HTTPException(
+            status_code=400,
+            detail=str(e)
+        )
