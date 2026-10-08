@@ -7,7 +7,8 @@ from fastapi import (
 
 from schemas.income_schema import (
     IncomeCreate,
-    IncomeUpdate
+    IncomeUpdate,
+    IncomeResponse
 )
 
 from services.income_service import (
@@ -29,14 +30,14 @@ router = APIRouter(
 )
 
 @router.get("/")
-async def get_all():
+async def get_all(response_model = list[IncomeResponse]):
     return await get_incomes()
 
 @router.get("/{income_id}")
 async def get_one(income_id:int = Path(
     ...,
     gt = 0
-)):
+),response_model = list[IncomeResponse]):
     try:
         return await get_income(income_id)
 
