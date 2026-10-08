@@ -1,5 +1,5 @@
 import psycopg
-from PythonFastAPI.IncomeManagement.config import Config
+from config import Config
 
 def get_connection():
     return psycopg.connect(

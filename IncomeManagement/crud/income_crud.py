@@ -1,5 +1,5 @@
-from PythonFastAPI.IncomeManagement.database import get_connection
-from PythonFastAPI.IncomeManagement.models import IncomeCreate,IncomeUpdate
+from database import get_connection
+from models import IncomeCreate,IncomeUpdate
 
 def get_all_income():
     connection = get_connection()

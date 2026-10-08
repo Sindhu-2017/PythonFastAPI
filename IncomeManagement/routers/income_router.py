@@ -1,6 +1,6 @@
 from fastapi import APIRouter,HTTPException
-from PythonFastAPI.IncomeManagement.models import IncomeCreate,IncomeUpdate
-from PythonFastAPI.IncomeManagement.crud.income_crud import (
+from models import IncomeCreate,IncomeUpdate
+from crud.income_crud import (
     get_all_income,
     get_income,
     create_income,
@@ -61,7 +61,7 @@ def update_existing_income(income_id:int , income :IncomeUpdate):
         )
 
     return {
-        "message" : "Income updated successfully",
+        "message" : "Income data updated successfully",
         "income_id" :updated_id
     }
 
