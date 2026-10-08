@@ -187,3 +187,57 @@ async def delete_income(income_id:int):
 
     finally:
         await connection.close()
+
+
+# patch
+async def patch_income(income_id: int, data: dict):
+
+    connection = await get_connection()
+
+    try:
+        async with connection.cursor() as cursor:
+
+            await cursor.execute("""
+                UPDATE income
+                SET income_date = %s,
+                    source = %s,
+                    income_type = %s,
+                    amount = %s,
+                    tax_percentage = %s,
+                    tax_amount = %s,
+                    expense_amount = %s,
+                    net_income = %s,
+                    cash_in_hand = %s,
+                    description = %s
+                WHERE income_id = %s
+                RETURNING income_id
+            """, (
+                data["income_date"],
+                data["source"],
+                data["income_type"],
+                data["amount"],
+                data["tax_percentage"],
+                data["tax_amount"],
+                data["expense_amount"],
+                data["net_income"],
+                data["cash_in_hand"],
+                data["description"],
+                income_id
+            ))
+
+            row = await cursor.fetchone()
+
+            if row is None:
+                await connection.rollback()
+                return None
+
+            await connection.commit()
+
+            return row
+
+    except Exception:
+        await connection.rollback()
+        raise
+
+    finally:
+        await connection.close()

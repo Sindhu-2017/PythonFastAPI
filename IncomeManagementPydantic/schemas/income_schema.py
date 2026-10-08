@@ -1,4 +1,5 @@
 from datetime import date
+from decimal import Decimal
 from pydantic import (
     BaseModel,
     Field,
@@ -62,3 +63,40 @@ class IncomeResponse(BaseModel):
     net_income: float
     cash_in_hand: float
     description: str | None
+
+class IncomePatch(BaseModel):
+
+    income_date: date | None = None
+
+    source: str | None = Field(
+        default=None,
+        min_length=2,
+        max_length=100
+    )
+
+    income_type: str | None = Field(
+        default=None,
+        min_length=2,
+        max_length=100
+    )
+
+    amount: Decimal | None = Field(
+        default=None,
+        gt=0
+    )
+
+    tax_percentage: Decimal | None = Field(
+        default=None,
+        ge=0,
+        le=100
+    )
+
+    expense_amount: Decimal | None = Field(
+        default=None,
+        ge=0
+    )
+
+    description: str | None = Field(
+        default=None,
+        max_length=255
+    )

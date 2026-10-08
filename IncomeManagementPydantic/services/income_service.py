@@ -5,12 +5,14 @@ from repositories.income_repository import (
     get_income_by_id,
     insert_income,
     update_income,
-    delete_income
+    delete_income,
+    patch_income
 )
 
 from schemas.income_schema import(
     IncomeCreate,
-    IncomeUpdate
+    IncomeUpdate,
+    IncomePatch
 )
 
 from models.income_model import IncomeModel
@@ -22,16 +24,21 @@ from exceptions.income_exceptions import (
 )
 
 # calculate tax,net income,cash in hand
-def calculate_income(amount,tax_percentage,expense_amount):
+def calculate_income(amount, tax_percentage, expense_amount):
+    amount = float(amount)
+    tax_percentage = float(tax_percentage)
+    expense_amount = float(expense_amount)
 
     if expense_amount > amount :
-        raise InvalidExpenseAmountError(amount,expense_amount)
-    
-    tax_amount = (amount * tax_percentage)/100
+            raise InvalidExpenseAmountError(amount,expense_amount)
+
+    tax_amount = (amount * tax_percentage) / 100
     net_income = amount - tax_amount
     cash_in_hand = net_income - expense_amount
 
-    return (tax_amount ,net_income,cash_in_hand)
+    return tax_amount, net_income, cash_in_hand
+
+
 
 # get all income data
 async def get_incomes():
@@ -131,3 +138,42 @@ async def delete_existing_income(income_id:int):
         "message" : "Income data deleted successfully",
         "income_id":deleted_id
     }
+
+
+async def patch_existing_income(
+    income_id: int,
+    income: IncomePatch
+):
+    existing = await get_income_by_id(income_id)
+
+    if existing is None:
+        raise IncomeNotFoundError(income_id)
+
+    data = income.model_dump(exclude_unset=True)
+
+    if not data:
+        return existing
+
+    current = {
+        "income_date": existing[1],
+        "source": existing[2],
+        "income_type": existing[3],
+        "amount": existing[4],
+        "tax_percentage": existing[5],
+        "expense_amount": existing[7],
+        "description": existing[10]
+    }
+
+    current.update(data)
+
+    tax_amount, net_income, cash_in_hand = calculate_income(
+        current["amount"],
+        current["tax_percentage"],
+        current["expense_amount"]
+    )
+
+    current["tax_amount"] = tax_amount
+    current["net_income"] = net_income
+    current["cash_in_hand"] = cash_in_hand
+
+    return await patch_income(income_id, current)

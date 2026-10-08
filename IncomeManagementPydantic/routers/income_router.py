@@ -8,7 +8,8 @@ from fastapi import (
 from schemas.income_schema import (
     IncomeCreate,
     IncomeUpdate,
-    IncomeResponse
+    IncomeResponse,
+    IncomePatch
 )
 
 from services.income_service import (
@@ -16,7 +17,8 @@ from services.income_service import (
     get_incomes,
     create_income,
     update_existing_income,
-    delete_existing_income
+    delete_existing_income,
+    patch_existing_income
 )
 
 from exceptions.income_exceptions import (
@@ -30,14 +32,14 @@ router = APIRouter(
 )
 
 @router.get("/")
-async def get_all(response_model = list[IncomeResponse]):
+async def get_all():
     return await get_incomes()
 
-@router.get("/{income_id}")
+@router.get("/{income_id}",response_model = list[IncomeResponse])
 async def get_one(income_id:int = Path(
     ...,
     gt = 0
-),response_model = list[IncomeResponse]):
+)):
     try:
         return await get_income(income_id)
 
@@ -48,7 +50,7 @@ async def get_one(income_id:int = Path(
         )
 
 
-@router.post("/",status_code=status.HTTP_201_CREATED)
+@router.post("/",response_model=IncomeResponse,status_code=status.HTTP_201_CREATED)
 async def create(income:IncomeCreate):
     try:
         return await create_income(income)
@@ -60,7 +62,7 @@ async def create(income:IncomeCreate):
         )
     
 
-@router.put("/{income_id}")
+@router.put("/{income_id}",response_model=IncomeResponse)
 async def update(
     income_id: int = Path(..., gt=0),
     income: IncomeUpdate = None
@@ -86,3 +88,7 @@ async def delete(income_id:int = Path(...,gt=0)):
             detail=str(e)
         )
     
+    
+@router.patch("/{income_id}")
+async def patch_income(income_id: int, income: IncomePatch):
+    return await patch_existing_income(income_id, income)
