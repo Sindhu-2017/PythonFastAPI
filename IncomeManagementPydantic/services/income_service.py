@@ -77,10 +77,7 @@ async def create_income(income:IncomeCreate):
 async def update_existing_income(income_id:int , income :IncomeUpdate):
     existing = await get_income_by_id(income_id)
     if existing is None :
-        raise HTTPException(
-            status_code= 404,
-            detail="Income id not found"
-        )
+        raise IncomeNotFoundError(income_id)
     
     tax_amount , net_income , cash_in_hand = calculate_income(
         income.amount,
@@ -104,10 +101,7 @@ async def update_existing_income(income_id:int , income :IncomeUpdate):
 async def delete_existing_income(income_id:int):
     existing = await get_income_by_id(income_id)
     if existing is None :
-        raise HTTPException(
-            status_code= 404,
-            detail="Income id not found"
-        )
+        raise IncomeNotFoundError(income_id)
 
     deleted_id = await delete_income(income_id)
 

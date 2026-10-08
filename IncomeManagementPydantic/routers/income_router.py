@@ -58,15 +58,31 @@ async def create(income:IncomeCreate):
             status_code=400,
             detail=str(e)
         )
+    
 
 @router.put("/{income_id}")
 async def update(
     income_id: int = Path(..., gt=0),
     income: IncomeUpdate = None
 ):
-    return await update_existing_income(income_id, income)
+    try:
+        return await update_existing_income(income_id, income)
+
+    except IncomeNotFoundError as e:
+        raise HTTPException(
+            status_code=404,
+            detail=str(e)
+        )
+    
 
 @router.delete("/{income_id}")
 async def delete(income_id:int = Path(...,gt=0)):
-    return await delete_existing_income(income_id)
+    try:
+        return await delete_existing_income(income_id)
+
+    except IncomeNotFoundError as e:
+        raise HTTPException(
+            status_code=404,
+            detail=str(e)
+        )
     
