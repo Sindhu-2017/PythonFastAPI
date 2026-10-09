@@ -52,6 +52,7 @@ async def insert_attachment(
 
     finally:
         await connection.close()
+        
 
 async def get_attachments_by_expense(expense_id: int):
     connection = await get_connection()
