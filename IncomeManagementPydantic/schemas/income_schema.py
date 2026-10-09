@@ -12,9 +12,9 @@ class IncomeCreate(BaseModel):
     income_date : date
     source :str = Field(min_length =2 ,max_length = 100)
     income_type : str = Field(min_length =2 ,max_length = 100)
-    amount :float =Field(gt=0)
-    tax_percentage :float =Field(ge=0)
-    expense_amount : float =Field(ge =0)
+    amount :Decimal =Field(gt=0)
+    tax_percentage :Decimal =Field(ge=0)
+    expense_amount : Decimal =Field(ge =0)
     description : str | None = Field ( default = None , max_length = 255)
 
     @field_validator("source")
@@ -40,17 +40,15 @@ class IncomeUpdate(BaseModel):
     income_date : date
     source :str = Field(min_length =2 ,max_length = 100)
     income_type : str = Field(min_length =2 ,max_length = 100)
-    amount :float =Field(gt=0)
-    tax_percentage :float =Field(ge=0)
-    expense_amount : float =Field(ge =0)
+    amount :Decimal =Field(gt=0)
+    tax_percentage :Decimal =Field(ge=0)
+    expense_amount : Decimal =Field(ge =0)
     description : str | None = Field ( default = None , max_length = 255)
 
 
-class IncomeResponse(BaseModel):
 
-    model_config = ConfigDict(
-        from_attributes=True
-    )
+class IncomeResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
 
     income_id: int
     income_date: date
@@ -62,7 +60,12 @@ class IncomeResponse(BaseModel):
     expense_amount: Decimal
     net_income: Decimal
     cash_in_hand: Decimal
-    description: str | None
+    description: str | None = None
+
+
+class IncomeActionResponse(BaseModel):
+    message: str
+    income_id: int
 
 class IncomePatch(BaseModel):
     income_date: date | None = None

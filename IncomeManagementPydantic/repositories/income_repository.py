@@ -1,22 +1,24 @@
 from database import get_connection
 
 # getting all income
+
 async def get_all_income():
     connection = await get_connection()
+
     try:
         async with connection.cursor() as cursor:
             await cursor.execute("""
-                SELECT 
-                    income_id , 
-                    income_date , 
-                    source , 
-                    income_type , 
+                SELECT
+                    income_id,
+                    income_date,
+                    source,
+                    income_type,
                     amount,
-                    tax_percentage ,
-                    tax_amount , 
-                    expense_amount , 
-                    net_income ,
-                    cash_in_hand , 
+                    tax_percentage,
+                    tax_amount,
+                    expense_amount,
+                    net_income,
+                    cash_in_hand,
                     description
                 FROM income
                 ORDER BY income_id
@@ -24,7 +26,25 @@ async def get_all_income():
 
             rows = await cursor.fetchall()
 
-            return rows
+            columns = [
+                "income_id",
+                "income_date",
+                "source",
+                "income_type",
+                "amount",
+                "tax_percentage",
+                "tax_amount",
+                "expense_amount",
+                "net_income",
+                "cash_in_hand",
+                "description",
+            ]
+
+            return [
+                dict(zip(columns, row))
+                for row in rows
+            ]
+
     finally:
         await connection.close()
 

@@ -9,7 +9,8 @@ from schemas.income_schema import (
     IncomeCreate,
     IncomeUpdate,
     IncomeResponse,
-    IncomePatch
+    IncomePatch,
+    IncomeActionResponse,
 )
 
 from services.income_service import (
@@ -31,41 +32,49 @@ router = APIRouter(
     tags=["Income"]
 )
 
-@router.get("/")
+
+@router.get("/", response_model=list[IncomeResponse])
 async def get_all():
     return await get_incomes()
 
-@router.get("/{income_id}",response_model = list[IncomeResponse])
-async def get_one(income_id:int = Path(
-    ...,
-    gt = 0
-)):
+
+@router.get("/{income_id}", response_model=IncomeResponse)
+async def get_one(
+    income_id: int = Path(..., gt=0)
+):
     try:
         return await get_income(income_id)
 
     except IncomeNotFoundError as e:
         raise HTTPException(
             status_code=404,
-            detail=str(e)
+            detail=str(e),
         )
 
 
-@router.post("/",response_model=IncomeResponse,status_code=status.HTTP_201_CREATED)
-async def create(income:IncomeCreate):
+@router.post(
+    "/",
+    response_model=IncomeActionResponse,
+    status_code=status.HTTP_201_CREATED,
+)
+async def create(income: IncomeCreate):
     try:
         return await create_income(income)
 
     except InvalidExpenseAmountError as e:
         raise HTTPException(
             status_code=400,
-            detail=str(e)
+            detail=str(e),
         )
-    
 
-@router.put("/{income_id}",response_model=IncomeResponse)
+
+@router.put(
+    "/{income_id}",
+    response_model=IncomeActionResponse,
+)
 async def update(
     income_id: int = Path(..., gt=0),
-    income: IncomeUpdate = None
+    income: IncomeUpdate = None,
 ):
     try:
         return await update_existing_income(income_id, income)
@@ -73,7 +82,13 @@ async def update(
     except IncomeNotFoundError as e:
         raise HTTPException(
             status_code=404,
-            detail=str(e)
+            detail=str(e),
+        )
+
+    except InvalidExpenseAmountError as e:
+        raise HTTPException(
+            status_code=400,
+            detail=str(e),
         )
     
 
@@ -89,7 +104,6 @@ async def delete(income_id:int = Path(...,gt=0)):
         )
     
     
-# PATCH
 @router.patch("/{income_id}")
 async def patch_income(
     income_id: int = Path(

@@ -40,22 +40,35 @@ def calculate_income(amount, tax_percentage, expense_amount):
 
 
 
-# get all income data
+
+# Get all income records
 async def get_incomes():
     rows = await get_all_income()
     return rows
 
-# get income by id
-async def get_income(income_id :int):
-    row = await get_income_by_id (income_id)
+
+# Get one income record by ID
+async def get_income(income_id: int):
+    row = await get_income_by_id(income_id)
 
     if row is None:
-        # raise HTTPException(
-        #     status_code= 404,
-        #     detail= "Income id not found"
-        # )
         raise IncomeNotFoundError(income_id)
-    return row
+
+    columns = [
+        "income_id",
+        "income_date",
+        "source",
+        "income_type",
+        "amount",
+        "tax_percentage",
+        "tax_amount",
+        "expense_amount",
+        "net_income",
+        "cash_in_hand",
+        "description",
+    ]
+
+    return dict(zip(columns, row))
 
 # create income data
 async def create_income(income:IncomeCreate):
