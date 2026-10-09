@@ -39,7 +39,16 @@ CREATE TABLE expense (
         ON DELETE CASCADE
 );
 
-
+INSERT INTO expense (
+    income_id,
+    expense_name,
+    amount,
+    description
+)
+VALUES
+    (1, 'Travel', 2000, 'Business travel'),
+    (1, 'Maintenance', 1500, 'Equipment maintenance');
+    
 UPDATE income
 SET amount = 10000,
     tax_percentage = 0,
@@ -48,3 +57,12 @@ SET amount = 10000,
     expense_amount = 3500,
     cash_in_hand = 6500
 WHERE income_id = 1;
+
+
+
+CREATE TABLE expense_attachments (
+    attachment_id SERIAL PRIMARY KEY,
+    expense_id INTEGER NOT NULL REFERENCES expenses(expense_id),
+    file_name VARCHAR(255) NOT NULL,
+    file_path TEXT NOT NULL
+);

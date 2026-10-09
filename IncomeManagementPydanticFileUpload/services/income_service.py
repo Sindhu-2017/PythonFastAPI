@@ -14,7 +14,6 @@ from repositories.expense_repository import (
     insert_expense,
     get_expenses_by_income,
     delete_expense,
-    recalculate_income,
 )
 
 from schemas.income_schema import(
