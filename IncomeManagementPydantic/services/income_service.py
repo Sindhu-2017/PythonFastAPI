@@ -181,7 +181,6 @@ async def patch_existing_income(income_id: int,income: IncomePatch):
     current.update(data)
 
     if (current["expense_amount"] > 0 and not current["description"]):
-
         raise ValueError(
             "Description is required when expense amount is greater than 0"
         )
