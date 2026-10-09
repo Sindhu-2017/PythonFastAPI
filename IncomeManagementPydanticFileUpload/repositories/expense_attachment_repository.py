@@ -52,3 +52,37 @@ async def insert_attachment(
 
     finally:
         await connection.close()
+
+async def get_attachments_by_expense(expense_id: int):
+    connection = await get_connection()
+
+    try:
+        async with connection.cursor() as cursor:
+            await cursor.execute(
+                """
+                SELECT
+                    attachment_id,
+                    expense_id,
+                    file_name,
+                    file_path
+                FROM expense_attachments
+                WHERE expense_id = %s
+                ORDER BY attachment_id
+                """,
+                (expense_id,)
+            )
+
+            rows = await cursor.fetchall()
+
+            return [
+                {
+                    "attachment_id": row[0],
+                    "expense_id": row[1],
+                    "file_name": row[2],
+                    "file_path": row[3],
+                }
+                for row in rows
+            ]
+
+    finally:
+        await connection.close()

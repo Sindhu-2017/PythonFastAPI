@@ -82,11 +82,22 @@ class ExpenseCreate(BaseModel):
     amount: Decimal = Field(gt=0)
     description: str | None = None
 
+
+class ExpenseAttachmentResponse(BaseModel):
+    attachment_id: int
+    expense_id: int
+    file_name: str
+    file_path: str
+
 class ExpenseResponse(BaseModel):
     expense_id: int
     expense_name: str
     amount: Decimal
     description: str | None = None
+
+    attachments: list[ExpenseAttachmentResponse] = Field(
+        default_factory=list
+    )
 
 
 class IncomeWithExpensesResponse(IncomeResponse):

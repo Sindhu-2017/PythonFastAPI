@@ -1,5 +1,6 @@
-
 from database import get_connection
+
+from repositories.expense_attachment_repository import get_attachments_by_expense
 
 
 async def insert_expense(income_id: int, expense: dict):
@@ -91,6 +92,7 @@ async def recalculate_income(cursor, income_id: int):
     ))
 
 
+
 async def get_expenses_by_income(income_id: int):
     connection = await get_connection()
 
@@ -112,10 +114,17 @@ async def get_expenses_by_income(income_id: int):
                 "description"
             ]
 
-            return [
+            expenses= [
                 dict(zip(columns, row))
                 for row in rows
             ]
+
+            for expense in expenses:
+                expense["attachments"] = await get_attachments_by_expense(
+                    expense["expense_id"]
+                )
+
+            return expenses
 
     finally:
         await connection.close()

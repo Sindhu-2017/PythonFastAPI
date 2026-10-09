@@ -31,25 +31,24 @@ async def upload_expense_file(
     expense_id: int,
     file: UploadFile,
 ):
-    # 1. Check the expense exists
     if not await expense_exists(expense_id):
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Expense not found",
         )
 
-    # 2. Validate the uploaded file type
+# file.content_type -> Multipurpose Internet Mail Extensions
     if file.content_type not in ALLOWED_FILE_TYPES:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Only PDF, JPG and PNG files are allowed",
         )
-
-    # 3. Create a folder for this expense
+    
     expense_directory = BASE_UPLOAD_DIR / str(expense_id)
     expense_directory.mkdir(parents=True, exist_ok=True)
 
-    # 4. Generate a unique filename
+
+
     extension = ALLOWED_FILE_TYPES[file.content_type]
     unique_filename = f"{uuid4().hex}{extension}"
     destination = expense_directory / unique_filename
@@ -57,7 +56,6 @@ async def upload_expense_file(
     total_size = 0
 
     try:
-        # 5. Save the file asynchronously in chunks
         async with aiofiles.open(destination, "wb") as output:
             while True:
                 chunk = await file.read(1024 * 1024)
@@ -75,7 +73,6 @@ async def upload_expense_file(
 
                 await output.write(chunk)
 
-        # 6. Store a relative path in PostgreSQL
         relative_path = destination.relative_to(
             BASE_UPLOAD_DIR.parent.parent
         ).as_posix()
@@ -94,7 +91,7 @@ async def upload_expense_file(
         }
 
     except Exception:
-        # Remove the file if database insertion or saving fails
+        # used to remove the file if database insertion or saving fails
         destination.unlink(missing_ok=True)
         raise
 
