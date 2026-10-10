@@ -1,5 +1,9 @@
 from database import get_connection
 
+from repositories.expense_attachment_repository import (
+    get_attachments_by_expense,
+)
+
 # getting all income
 
 async def get_all_income(limit:int,offset:int):
@@ -328,13 +332,20 @@ async def get_all_income_with_expenses():
                     }
                     income_data[income_id]["expenses"] = []
 
+                
                 if data["expense_id"] is not None:
+                    attachments = await get_attachments_by_expense(
+                        data["expense_id"]
+                    )
+
                     income_data[income_id]["expenses"].append({
                         "expense_id": data["expense_id"],
                         "expense_name": data["expense_name"],
                         "amount": data["individual_expense_amount"],
-                        "description": data["expense_description"]
+                        "description": data["expense_description"],
+                        "attachments": attachments
                     })
+
 
             return list(income_data.values())
 

@@ -171,11 +171,13 @@ async def update_existing_income(income_id:int , income :IncomeUpdate):
     existing = await get_income_by_id(income_id)
     if existing is None :
         raise IncomeNotFoundError(income_id)
+
+    expense_amount = existing[7]
     
     tax_amount , net_income , cash_in_hand = calculate_income(
         income.amount,
         income.tax_percentage,
-        income.expense_amount
+        expense_amount
     )
 
 
