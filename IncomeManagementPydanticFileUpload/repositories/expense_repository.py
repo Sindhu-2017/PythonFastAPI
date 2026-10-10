@@ -8,7 +8,6 @@ async def insert_expense(income_id: int, expense: dict):
 
     try:
         async with connection.cursor() as cursor:
-            # Lock the parent income while modifying its expenses
             await cursor.execute(
                 "SELECT income_id FROM income WHERE income_id = %s FOR UPDATE",
                 (income_id,)
@@ -135,7 +134,6 @@ async def delete_expense(expense_id: int):
 
     try:
         async with connection.cursor() as cursor:
-            # Find and lock the parent income
             await cursor.execute("""
                 SELECT income_id
                 FROM expense

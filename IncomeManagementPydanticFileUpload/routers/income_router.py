@@ -24,7 +24,6 @@ from services.income_service import (
     update_existing_income,
     delete_existing_income,
     patch_existing_income,
-    get_all_income_with_expenses,
     create_expense_for_income,
     get_incomes_with_expenses,
     delete_existing_expense,
@@ -48,12 +47,12 @@ async def get_all(
 ):
     return await get_incomes(page ,page_size)
 
-@router.get(
-    "/with-expenses",
-    response_model=list[IncomeWithExpensesResponse]
-)
-async def get_income_expenses():
-    return await get_all_income_with_expenses()
+# @router.get(
+#     "/with-expenses",
+#     response_model=list[IncomeWithExpensesResponse]
+# )
+# async def get_income_expenses():
+#     return await get_all_income_with_expenses()
 
 
 @router.get("/{income_id}", response_model=IncomeResponse)
@@ -153,7 +152,7 @@ async def patch_income(
 
 
 
-
+# expenses
 @router.get(
     "/with-expenses",
     response_model=list[IncomeWithExpensesResponse]

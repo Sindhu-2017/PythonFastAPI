@@ -33,22 +33,6 @@ from exceptions.income_exceptions import (
     InvalidExpenseAmountError
 )
 
-# # calculate tax,net income,cash in hand
-# def calculate_income(amount, tax_percentage, expense_amount):
-#     amount = float(amount)
-#     tax_percentage = float(tax_percentage)
-#     expense_amount = float(expense_amount)
-
-#     if expense_amount > amount :
-#             raise InvalidExpenseAmountError(expense_amount,amount)
-
-#     tax_amount = (amount * tax_percentage) / 100
-#     net_income = amount - tax_amount
-#     cash_in_hand = net_income - expense_amount
-
-#     return tax_amount, net_income, cash_in_hand
-
-
 from decimal import Decimal
 
 
@@ -272,10 +256,6 @@ async def patch_existing_income(income_id: int,income: IncomePatch):
         "income_id": row[0]
     }
 
-
-
-async def get_incomes_with_expenses():
-    return await get_all_income_with_expenses()
 
 
 async def create_expense_for_income(

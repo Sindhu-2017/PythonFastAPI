@@ -278,7 +278,6 @@ async def patch_income(income_id: int, data: dict):
         await connection.close()
 
 
-
 # get income with expenses
 
 async def get_all_income_with_expenses():
