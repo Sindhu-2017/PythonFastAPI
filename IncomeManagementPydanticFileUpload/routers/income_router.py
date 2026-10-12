@@ -14,7 +14,8 @@ from schemas.income_schema import (
     IncomeActionResponse,
     IncomePaginatedResponse,
     IncomeWithExpensesResponse,
-    ExpenseCreate
+    ExpenseCreate,
+    ExpensePatch
 )
 
 from services.income_service import (
@@ -27,6 +28,7 @@ from services.income_service import (
     create_expense_for_income,
     get_incomes_with_expenses,
     delete_existing_expense,
+    patch_existing_expense
 )
 
 from exceptions.income_exceptions import (
@@ -41,10 +43,10 @@ router = APIRouter(
 
 
 @router.get("/",response_model=IncomePaginatedResponse)
-async def get_all(
+async def get_all_income(
     page : int =Query(1,ge=1),
     page_size : int = Query(3,ge=1,le=5),
-    income_name : str | None = Query (default=None,min_length=1, description="Filter income by name")
+    income_name : str | None = Query (default=None,min_length=1, description="Filter income by name/source")
 ):
     return await get_incomes(page ,page_size,income_name)
 
@@ -56,7 +58,7 @@ async def get_all_with_expenses():
     return await get_incomes_with_expenses()
 
 @router.get("/{income_id}", response_model=IncomeResponse)
-async def get_one(
+async def get_one_income(
     income_id: int = Path(..., gt=0)
 ):
     try:
@@ -74,7 +76,7 @@ async def get_one(
     response_model=IncomeActionResponse,
     status_code=status.HTTP_201_CREATED,
 )
-async def create(income: IncomeCreate):
+async def create_income(income: IncomeCreate):
     try:
         return await create_income(income)
 
@@ -89,7 +91,7 @@ async def create(income: IncomeCreate):
     "/{income_id}",
     response_model=IncomeActionResponse,
 )
-async def update(
+async def update_income(
     income_id: int = Path(..., gt=0),
     income: IncomeUpdate = None,
 ):
@@ -110,7 +112,7 @@ async def update(
     
 
 @router.delete("/{income_id}")
-async def delete(income_id:int = Path(...,gt=0)):
+async def delete_income(income_id:int = Path(...,gt=0)):
     try:
         return await delete_existing_income(income_id)
 
@@ -175,5 +177,24 @@ async def delete_expense(
 ):
     try:
         return await delete_existing_expense(expense_id)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
+
+
+@router.patch("/expenses/{expense_id}")
+async def patch_expense(
+    expense_id: int = Path(..., gt=0),
+    expense: ExpensePatch = ...
+):
+    try:
+        result = await patch_existing_expense(expense_id, expense)
+        if result is None:
+            raise HTTPException(
+                status_code=404,
+                detail=f"Expense with ID {expense_id} was not found"
+            )
+        return result
+
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))

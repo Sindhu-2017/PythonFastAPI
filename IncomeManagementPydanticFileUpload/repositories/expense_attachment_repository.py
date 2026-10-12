@@ -1,6 +1,4 @@
-
 from database import get_connection
-
 
 async def expense_exists(expense_id: int):
     connection = await get_connection()

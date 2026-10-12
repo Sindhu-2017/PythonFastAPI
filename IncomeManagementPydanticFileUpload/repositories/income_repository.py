@@ -350,7 +350,6 @@ async def get_all_income_with_expenses():
             ]
 
             income_data = {}
-
             for row in rows:
                 data = dict(zip(columns, row))
                 income_id = data["income_id"]
@@ -374,7 +373,6 @@ async def get_all_income_with_expenses():
                         "description": data["expense_description"],
                         "attachments": attachments
                     })
-
 
             return list(income_data.values())
 

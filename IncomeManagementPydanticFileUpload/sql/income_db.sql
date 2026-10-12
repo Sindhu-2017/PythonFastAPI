@@ -1,11 +1,3 @@
-
-
-
-DROP TABLE IF EXISTS expense_attachments CASCADE;
-DROP TABLE IF EXISTS expense CASCADE;
-DROP TABLE IF EXISTS income CASCADE;
-
-
 CREATE TABLE income (
     income_id SERIAL PRIMARY KEY,
     income_date DATE NOT NULL,
@@ -20,35 +12,21 @@ CREATE TABLE income (
     description TEXT
 );
 
-
-
 CREATE TABLE expense (
     expense_id SERIAL PRIMARY KEY,
-    income_id INTEGER NOT NULL,
+    income_id INTEGER NOT NULL REFERENCES income(income_id) ON DELETE CASCADE,
     expense_name VARCHAR(100) NOT NULL,
     amount NUMERIC(12,2) NOT NULL CHECK (amount >= 0),
-    description TEXT,
-
-    CONSTRAINT fk_expense_income
-        FOREIGN KEY (income_id)
-        REFERENCES income(income_id)
-        ON DELETE CASCADE
+    description TEXT        
 );
-
 
 
 CREATE TABLE expense_attachments (
     attachment_id SERIAL PRIMARY KEY,
-    expense_id INTEGER NOT NULL,
+    expense_id INTEGER NOT NULL REFERENCES expense(expense_id)  ON DELETE CASCADE,
     file_name VARCHAR(255) NOT NULL,
-    file_path TEXT NOT NULL,
-
-    CONSTRAINT expense_attachments_expense_id_fkey
-        FOREIGN KEY (expense_id)
-        REFERENCES expense(expense_id)
-        ON DELETE CASCADE
+    file_path TEXT NOT NULL        
 );
-
 
 
 INSERT INTO income (
@@ -100,7 +78,5 @@ VALUES
 
 
 SELECT * FROM income ORDER BY income_id;
-
 SELECT * FROM expense ORDER BY expense_id;
-
 SELECT * FROM expense_attachments ORDER BY attachment_id;

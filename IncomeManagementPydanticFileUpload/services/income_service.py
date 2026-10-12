@@ -7,13 +7,15 @@ from repositories.income_repository import (
     update_income,
     delete_income,
     patch_income,
-    get_all_income_with_expenses
+    get_all_income_with_expenses,
+    patch_expense
 )
 
 from repositories.expense_repository import (
     insert_expense,
     get_expenses_by_income,
     delete_expense,
+    patch_expense
 )
 
 from schemas.income_schema import(
@@ -22,7 +24,8 @@ from schemas.income_schema import(
     IncomePatch,
     IncomePagination,
     IncomePaginatedResponse,
-    ExpenseCreate
+    ExpenseCreate,
+    ExpensePatch
 )
 
 from models.income_model import IncomeModel
@@ -207,7 +210,6 @@ async def delete_existing_income(income_id:int):
 
 # PATCH
 async def patch_existing_income(income_id: int,income: IncomePatch):
-
     existing = await get_income_by_id(income_id)
 
     if existing is None:
@@ -296,3 +298,21 @@ async def delete_existing_expense(expense_id: int):
     }
 
 
+
+async def patch_existing_expense(
+    expense_id: int,
+    expense: ExpensePatch
+):
+    data = expense.model_dump(exclude_unset=True)
+
+    if not data:
+        raise ValueError("At least one field must be provided for PATCH")
+    
+    updated_id = await patch_expense(expense_id, data)
+    if updated_id is None:
+        return None
+
+    return {
+        "message": "Expense partially updated successfully",
+        "expense_id": updated_id
+    }

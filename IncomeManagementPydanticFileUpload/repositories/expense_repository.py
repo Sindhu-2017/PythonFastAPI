@@ -1,7 +1,5 @@
 from database import get_connection
-
 from repositories.expense_attachment_repository import get_attachments_by_expense
-
 
 async def insert_expense(income_id: int, expense: dict):
     connection = await get_connection()
@@ -30,9 +28,7 @@ async def insert_expense(income_id: int, expense: dict):
             ))
 
             row = await cursor.fetchone()
-
             await recalculate_income(cursor, income_id)
-
             await connection.commit()
             return row[0]
 
@@ -168,11 +164,73 @@ async def delete_expense(expense_id: int):
             if deleted is None:
                 await connection.rollback()
                 return None
-
             await recalculate_income(cursor, income_id)
 
             await connection.commit()
             return deleted[0]
+
+    except Exception:
+        await connection.rollback()
+        raise
+
+    finally:
+        await connection.close()
+
+
+async def patch_expense(expense_id: int, data: dict):
+    connection = await get_connection()
+
+    try:
+        async with connection.cursor() as cursor:
+            await cursor.execute("""
+                SELECT income_id, expense_name, amount, description
+                FROM expense
+                WHERE expense_id = %s
+            """, (expense_id,))
+
+            row = await cursor.fetchone()
+
+            if row is None:
+                return None
+            income_id, expense_name, amount, description = row
+            await cursor.execute("""
+                SELECT income_id
+                FROM income
+                WHERE income_id = %s
+                FOR UPDATE
+            """, (income_id,))
+
+            if await cursor.fetchone() is None:
+                return None
+            
+            current = {
+                "expense_name": expense_name,
+                "amount": amount,
+                "description": description
+            }
+            current.update(data)
+
+            if current["expense_name"] is None or current["amount"] is None:
+                raise ValueError("Expense name and amount cannot be null")
+
+            await cursor.execute("""
+                UPDATE expense
+                SET expense_name = %s,
+                    amount = %s,
+                    description = %s
+                WHERE expense_id = %s
+                RETURNING expense_id
+            """, (
+                current["expense_name"],
+                current["amount"],
+                current["description"],
+                expense_id
+            ))
+
+            updated = await cursor.fetchone()
+            await recalculate_income(cursor, income_id)
+            await connection.commit()
+            return updated[0]
 
     except Exception:
         await connection.rollback()

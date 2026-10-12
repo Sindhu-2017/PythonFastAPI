@@ -4,7 +4,6 @@ from pydantic import (
     BaseModel,
     Field,
     field_validator,
-    model_validator,
     ConfigDict
 )
 
@@ -23,7 +22,6 @@ class IncomeCreate(BaseModel):
             raise ValueError("Income source cannot contain numbers")
 
         return value.strip()
-
    
 
 class IncomeUpdate(BaseModel):
@@ -82,6 +80,11 @@ class ExpenseCreate(BaseModel):
     amount: Decimal = Field(gt=0)
     description: str | None = None
 
+
+class ExpensePatch(BaseModel):
+    expense_name: str | None = Field(default=None,min_length=2,max_length=100)
+    amount: Decimal | None = Field(default=None,gt=0)
+    description: str | None = None
 
 class ExpenseAttachmentResponse(BaseModel):
     attachment_id: int

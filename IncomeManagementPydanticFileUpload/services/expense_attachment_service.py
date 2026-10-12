@@ -1,9 +1,7 @@
 
 from pathlib import Path
 from uuid import uuid4
-
 import aiofiles
-
 from fastapi import HTTPException, UploadFile, status
 
 from repositories.expense_attachment_repository import (
@@ -12,20 +10,13 @@ from repositories.expense_attachment_repository import (
 )
 
 
-BASE_UPLOAD_DIR = (
-    Path(__file__).resolve().parent.parent
-    / "uploads"
-    / "expenses"
-)
-
+BASE_UPLOAD_DIR = (Path(__file__).resolve().parent.parent / "uploads" / "expenses")
 ALLOWED_FILE_TYPES = {
     "application/pdf": ".pdf",
     "image/jpeg": ".jpg",
     "image/png": ".png",
 }
-
-MAX_FILE_SIZE = 5 * 1024 * 1024  # 5 MB
-
+MAX_FILE_SIZE = 5 * 1024 * 1024 
 
 async def upload_expense_file(
     expense_id: int,
@@ -37,7 +28,6 @@ async def upload_expense_file(
             detail="Expense not found",
         )
 
-# file.content_type -> Multipurpose Internet Mail Extensions
     if file.content_type not in ALLOWED_FILE_TYPES:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -46,8 +36,6 @@ async def upload_expense_file(
     
     expense_directory = BASE_UPLOAD_DIR / str(expense_id)
     expense_directory.mkdir(parents=True, exist_ok=True)
-
-
 
     extension = ALLOWED_FILE_TYPES[file.content_type]
     unique_filename = f"{uuid4().hex}{extension}"
@@ -59,12 +47,10 @@ async def upload_expense_file(
         async with aiofiles.open(destination, "wb") as output:
             while True:
                 chunk = await file.read(1024 * 1024)
-
                 if not chunk:
                     break
 
                 total_size += len(chunk)
-
                 if total_size > MAX_FILE_SIZE:
                     raise HTTPException(
                         status_code=413,
@@ -73,9 +59,7 @@ async def upload_expense_file(
 
                 await output.write(chunk)
 
-        relative_path = destination.relative_to(
-            BASE_UPLOAD_DIR.parent.parent
-        ).as_posix()
+        relative_path = destination.relative_to(BASE_UPLOAD_DIR.parent.parent).as_posix()
 
         attachment_id = await insert_attachment(
             expense_id=expense_id,
@@ -91,7 +75,6 @@ async def upload_expense_file(
         }
 
     except Exception:
-        # used to remove the file if database insertion or saving fails
         destination.unlink(missing_ok=True)
         raise
 

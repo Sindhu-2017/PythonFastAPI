@@ -3,7 +3,6 @@ from fastapi import FastAPI,Request
 from routers.income_router import router as income_router
 from routers.expense_attachment_router import router as attachment_router
 
-
 @asynccontextmanager
 async def lifespan(app : FastAPI):
     print("Income Management API is running")
