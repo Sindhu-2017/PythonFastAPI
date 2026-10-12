@@ -6,5 +6,5 @@ def pagination_parameters(
 ):
     return {
         "page" : page,
-        "page_size " : page_size
+        "page_size" : page_size
     }

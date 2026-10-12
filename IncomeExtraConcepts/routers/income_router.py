@@ -54,6 +54,12 @@ async def get_all(
 
     return await get_incomes(page ,page_size)
 
+@router.get(
+    "/with-expenses",
+    response_model=list[IncomeWithExpensesResponse]
+)
+async def get_all_with_expenses():
+    return await get_incomes_with_expenses()
 
 @router.get("/{income_id}", response_model=IncomeResponse)
 async def get_one(
@@ -153,13 +159,6 @@ async def patch_income(
 
 
 # expenses
-@router.get(
-    "/with-expenses",
-    response_model=list[IncomeWithExpensesResponse]
-)
-async def get_all_with_expenses():
-    return await get_incomes_with_expenses()
-
 
 @router.post("/{income_id}/expenses", status_code=201)
 async def create_expense(
