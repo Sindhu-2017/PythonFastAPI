@@ -54,12 +54,13 @@ def calculate_income(amount, tax_percentage, expense_amount):
 
 
 # Get all income records
-async def get_incomes(page:int,page_size:int) -> IncomePaginatedResponse:
+async def get_incomes(page:int,page_size:int,income_name: str | None = None) -> IncomePaginatedResponse:
 
     offset = (page -1) * page_size
     rows = await get_all_income(
         limit = page_size,
-        offset = offset
+        offset = offset,
+        income_name=income_name
     )
     total = rows["total"]
     records = rows["records"]

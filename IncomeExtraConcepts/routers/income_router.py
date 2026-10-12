@@ -47,12 +47,13 @@ router = APIRouter(
 async def get_all(
     # page : int =Query(1,ge=1),
     # page_size : int = Query(3,ge=1,le=5)
-    pagination : dict = Depends(pagination_parameters)
+    pagination : dict = Depends(pagination_parameters),
+    income_name: str | None = Query(default=None,min_length=1,description="Filter income by name/source")
 ):
     page = pagination["page"]
     page_size = pagination["page_size"]
 
-    return await get_incomes(page ,page_size)
+    return await get_incomes(page ,page_size,income_name)
 
 @router.get(
     "/with-expenses",

@@ -43,17 +43,17 @@ router = APIRouter(
 @router.get("/",response_model=IncomePaginatedResponse)
 async def get_all(
     page : int =Query(1,ge=1),
-    page_size : int = Query(3,ge=1,le=5)
+    page_size : int = Query(3,ge=1,le=5),
+    income_name : str | None = Query (default=None,min_length=1, description="Filter income by name")
 ):
-    return await get_incomes(page ,page_size)
+    return await get_incomes(page ,page_size,income_name)
 
-# @router.get(
-#     "/with-expenses",
-#     response_model=list[IncomeWithExpensesResponse]
-# )
-# async def get_income_expenses():
-#     return await get_all_income_with_expenses()
-
+@router.get(
+    "/with-expenses",
+    response_model=list[IncomeWithExpensesResponse]
+)
+async def get_all_with_expenses():
+    return await get_incomes_with_expenses()
 
 @router.get("/{income_id}", response_model=IncomeResponse)
 async def get_one(
@@ -153,14 +153,6 @@ async def patch_income(
 
 
 # expenses
-@router.get(
-    "/with-expenses",
-    response_model=list[IncomeWithExpensesResponse]
-)
-async def get_all_with_expenses():
-    return await get_incomes_with_expenses()
-
-
 @router.post("/{income_id}/expenses", status_code=201)
 async def create_expense(
     income_id: int = Path(..., gt=0),

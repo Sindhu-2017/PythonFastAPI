@@ -6,34 +6,64 @@ from repositories.expense_attachment_repository import (
 
 # getting all income
 
-async def get_all_income(limit:int,offset:int):
+async def get_all_income(limit:int,offset:int,income_name:str|None =None):
     connection = await get_connection()
 
     try:
         async with connection.cursor() as cursor:
-            await cursor.execute("""
-                SELECT COUNT(*)
-                FROM income
-            """)
-            total = (await cursor.fetchone())[0]
+            if income_name:
+                search_value = f"%{income_name.strip()}%"
+                await cursor.execute("""
+                    SELECT COUNT(*)
+                    FROM income
+                    WHERE source ILIKE %s
+                """, (search_value,))
+            else:
 
-            await cursor.execute("""
-                SELECT
-                    income_id,
-                    income_date,
-                    source,
-                    income_type,
-                    amount,
-                    tax_percentage,
-                    tax_amount,
-                    expense_amount,
-                    net_income,
-                    cash_in_hand,
-                    description
-                FROM income
-                ORDER BY income_id
-                LIMIT %s OFFSET %s
-            """,(limit,offset))
+                await cursor.execute("""
+                    SELECT COUNT(*)
+                    FROM income
+                """)
+
+            total = (await cursor.fetchone())[0]
+            if income_name:
+                await cursor.execute("""
+                    SELECT
+                        income_id,
+                        income_date,
+                        source,
+                        income_type,
+                        amount,
+                        tax_percentage,
+                        tax_amount,
+                        expense_amount,
+                        net_income,
+                        cash_in_hand,
+                        description
+                    FROM income
+                    WHERE source ILIKE %s
+                    ORDER BY income_id
+                    LIMIT %s OFFSET %s
+                """, (search_value, limit, offset))
+            else:
+
+                await cursor.execute("""
+                    SELECT
+                        income_id,
+                        income_date,
+                        source,
+                        income_type,
+                        amount,
+                        tax_percentage,
+                        tax_amount,
+                        expense_amount,
+                        net_income,
+                        cash_in_hand,
+                        description
+                    FROM income
+                    ORDER BY income_id
+                    LIMIT %s OFFSET %s
+                """,(limit,offset))
 
             rows = await cursor.fetchall()
 
