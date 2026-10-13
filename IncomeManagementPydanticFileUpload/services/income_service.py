@@ -8,7 +8,6 @@ from repositories.income_repository import (
     delete_income,
     patch_income,
     get_all_income_with_expenses,
-    patch_expense
 )
 
 from repositories.expense_repository import (

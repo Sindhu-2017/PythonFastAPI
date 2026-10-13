@@ -12,6 +12,7 @@ CREATE TABLE income (
     description TEXT
 );
 
+
 CREATE TABLE expense (
     expense_id SERIAL PRIMARY KEY,
     income_id INTEGER NOT NULL REFERENCES income(income_id) ON DELETE CASCADE,
@@ -19,6 +20,9 @@ CREATE TABLE expense (
     amount NUMERIC(12,2) NOT NULL CHECK (amount >= 0),
     description TEXT        
 );
+
+
+
 
 
 CREATE TABLE expense_attachments (

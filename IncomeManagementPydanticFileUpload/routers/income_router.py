@@ -76,7 +76,7 @@ async def get_one_income(
     response_model=IncomeActionResponse,
     status_code=status.HTTP_201_CREATED,
 )
-async def create_income(income: IncomeCreate):
+async def create(income: IncomeCreate):
     try:
         return await create_income(income)
 
