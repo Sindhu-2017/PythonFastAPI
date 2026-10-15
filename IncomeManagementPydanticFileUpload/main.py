@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from routers.income_router import router as income_router
 from routers.expense_attachment_router import router as attachment_router
+from routers.cookie_router import router as cookie_router
 
 app = FastAPI(
     title="Income Management API",
@@ -9,6 +10,8 @@ app = FastAPI(
 )
 app.include_router(income_router)
 app.include_router(attachment_router)
+app.include_router(cookie_router)
+
 
 
 @app.get("/")
