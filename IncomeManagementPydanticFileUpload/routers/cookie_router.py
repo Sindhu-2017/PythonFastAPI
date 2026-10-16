@@ -16,7 +16,6 @@ def set_preference(response: Response):
         samesite="lax",
         path="/"
     )
-
     return {
         "message": "Currency preference cookie created",
         "currency": "INR"
@@ -24,15 +23,12 @@ def set_preference(response: Response):
 
 
 @router.get("/preferences")
-def get_preference(
-    currency: str | None = Cookie(default=None)
-):
+def get_preference(currency: str | None = Cookie(default=None)):
     if currency is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Currency cookie not found. Set it first."
         )
-
     return {
         "currency": currency
     }
@@ -40,30 +36,14 @@ def get_preference(
 
 @router.delete("/preferences")
 def delete_preference(response: Response):
-    response.delete_cookie(
-        key="currency",
-        path="/"
-    )
-
+    response.delete_cookie(key="currency",path="/")
     return {
         "message": "Currency preference cookie deleted"
     }
 
-
-@router.get("/check")
-def check_cookie(
-    currency: str | None = Cookie(default=None)
-):
+@router.get("/response")
+def response_header(response: Response):
+    response.headers["X-App-Name"] = "Income Management API"
     return {
-        "cookie_received": currency is not None,
-        "currency": currency
-    }
-
-
-@router.get("/check-header")
-def check_header(
-    app_name: str | None = Header(default=None, alias="X-App-Name")
-):
-    return {
-        "app_name": app_name
+        "message": "Custom response header added"
     }
